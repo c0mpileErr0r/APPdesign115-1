@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>計算機</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #f2f2f2;
+            font-family: Arial, sans-serif;
+        }
+        .calculator {
+            width: 350px;
+            padding: 20px;
+            background: #222;
+            border-radius: 20px;
+        }
+        .display {
+            width: 100%;
+            height: 90px;
+            margin-bottom: 15px;
+            padding: 15px;
+            background: #333;
+            color: white;
+            border-radius: 10px;
+            text-align: right;
+            font-size: 40px;
+            overflow: hidden;
+        }
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+        button {
+            height: 65px;
+            border: none;
+            border-radius: 12px;
+            font-size: 24px;
+            cursor: pointer;
+            background: #555;
+            color: white;
+        }
+        button:hover { background: #666; }
+        .operator { background: #ff9500; }
+        .operator:hover { background: #ffaa33; }
+        .clear { background: #d9534f; }
+        .equal { background: #28a745; }
+        .zero { grid-column: span 2; }
+    </style>
+</head>
+<body>
+    <div class="calculator">
+        <div class="display" id="display">0</div>
+
+        <div class="buttons">
+            <button class="clear" onclick="clearDisplay()">AC</button>
+            <button onclick="deleteNumber()">⌫</button>
+            <button onclick="percent()">%</button>
+            <button class="operator" onclick="addOperator('/')">÷</button>
+
+            <button onclick="addNumber('7')">7</button>
+            <button onclick="addNumber('8')">8</button>
+            <button onclick="addNumber('9')">9</button>
+            <button class="operator" onclick="addOperator('*')">×</button>
+
+            <button onclick="addNumber('4')">4</button>
+            <button onclick="addNumber('5')">5</button>
+            <button onclick="addNumber('6')">6</button>
+            <button class="operator" onclick="addOperator('-')">−</button>
+
+            <button onclick="addNumber('1')">1</button>
+            <button onclick="addNumber('2')">2</button>
+            <button onclick="addNumber('3')">3</button>
+            <button class="operator" onclick="addOperator('+')">+</button>
+
+            <button class="zero" onclick="addNumber('0')">0</button>
+            <button onclick="addNumber('.')">.</button>
+            <button class="equal" onclick="calculate()">=</button>
+        </div>
+    </div>
+
+    <script>
+        let current = "0";
+
+        function updateDisplay() {
+            document.getElementById("display").innerText = current;
+        }
+
+        function addNumber(number) {
+            if (current === "錯誤") current = "0";
+
+            if (current === "0" && number !== ".") {
+                current = number;
+            } else {
+                if (number === "." && current.split(/[+\-*/]/).pop().includes(".")) {
+                    return;
+                }
+                current += number;
+            }
+            updateDisplay();
+        }
+
+        function addOperator(operator) {
+            if (current === "錯誤") current = "0";
+
+            let last = current.slice(-1);
+            if (["+", "-", "*", "/"].includes(last)) {
+                current = current.slice(0, -1) + operator;
+            } else {
+                current += operator;
+            }
+            updateDisplay();
+        }
+
+        function calculate() {
+            try {
+                if (!/^[0-9+\-*/.]+$/.test(current)) {
+                    current = "錯誤";
+                } else {
+                    let result = eval(current);
+                    current = isFinite(result) ? String(result) : "錯誤";
+                }
+            } catch {
+                current = "錯誤";
+            }
+            updateDisplay();
+        }
+
+        function clearDisplay() {
+            current = "0";
+            updateDisplay();
+        }
+
+        function deleteNumber() {
+            if (current === "錯誤" || current.length <= 1) {
+                current = "0";
+            } else {
+                current = current.slice(0, -1);
+            }
+            updateDisplay();
+        }
+
+        function percent() {
+            let parts = current.split(/([+\-*/])/);
+            let last = parts[parts.length - 1];
+            let number = parseFloat(last);
+
+            if (!isNaN(number)) {
+                parts[parts.length - 1] = String(number / 100);
+                current = parts.join("");
+            }
+            updateDisplay();
+        }
+
+        document.addEventListener("keydown", function(event) {
+            const key = event.key;
+
+            if (/[0-9.]/.test(key)) {
+                addNumber(key);
+            } else if (["+", "-", "*", "/"].includes(key)) {
+                addOperator(key);
+            } else if (key === "Enter" || key === "=") {
+                calculate();
+            } else if (key === "Backspace") {
+                deleteNumber();
+            } else if (key === "Escape") {
+                clearDisplay();
+            } else if (key === "%") {
+                percent();
+            }
+        });
+    </script>
+</body>
+</html>

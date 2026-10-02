@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BMI 計算機</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            min-height: 100vh;
+            margin: 0;
+            padding: 24px;
+            display: grid;
+            place-items: center;
+            background: linear-gradient(135deg, #e0f2fe, #f0fdf4);
+            color: #1f2937;
+            font-family: Arial, "Noto Sans TC", sans-serif;
+        }
+        .card {
+            width: min(100%, 420px);
+            padding: 32px;
+            background: #fff;
+            border-radius: 20px;
+            box-shadow: 0 16px 40px rgba(31, 41, 55, 0.12);
+        }
+        h1 { margin: 0 0 8px; text-align: center; color: #0f766e; }
+        .description { margin: 0 0 28px; text-align: center; color: #64748b; }
+        .field { margin-bottom: 18px; }
+        label { display: block; margin-bottom: 8px; font-weight: 700; }
+        .input-wrap {
+            display: flex;
+            align-items: center;
+            border: 1px solid #cbd5e1;
+            border-radius: 10px;
+            background: #fff;
+        }
+        .input-wrap:focus-within {
+            border-color: #0f766e;
+            box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.15);
+        }
+        input {
+            width: 100%;
+            min-width: 0;
+            padding: 13px;
+            border: 0;
+            outline: 0;
+            border-radius: 10px;
+            font-size: 16px;
+        }
+        .unit { padding: 0 14px; color: #64748b; }
+        button {
+            width: 100%;
+            padding: 14px;
+            border: 0;
+            border-radius: 10px;
+            background: #0f766e;
+            color: #fff;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        button:hover { background: #115e59; }
+        button:focus-visible { outline: 3px solid #99f6e4; outline-offset: 2px; }
+        .result {
+            margin-top: 22px;
+            padding: 18px;
+            border-radius: 12px;
+            background: #f1f5f9;
+            text-align: center;
+        }
+        .result[hidden], .error[hidden] { display: none; }
+        .result-label { margin: 0 0 6px; color: #64748b; }
+        .bmi-value { margin: 0; color: #0f766e; font-size: 36px; font-weight: 700; }
+        .category { margin: 6px 0 0; font-size: 18px; font-weight: 700; }
+        .error { margin: 14px 0 0; color: #b91c1c; text-align: center; }
+        .note { margin: 18px 0 0; color: #64748b; font-size: 13px; line-height: 1.6; }
+    </style>
+</head>
+<body>
+    <main class="card">
+        <h1>BMI 計算機</h1>
+        <p class="description">輸入身高與體重，快速計算 BMI</p>
+
+        <form id="bmi-form" novalidate>
+            <div class="field">
+                <label for="height">身高</label>
+                <div class="input-wrap">
+                    <input id="height" name="height" type="number" min="1" step="any" placeholder="例如：170" inputmode="decimal" required>
+                    <span class="unit">公分</span>
+                </div>
+            </div>
+            <div class="field">
+                <label for="weight">體重</label>
+                <div class="input-wrap">
+                    <input id="weight" name="weight" type="number" min="1" step="any" placeholder="例如：60" inputmode="decimal" required>
+                    <span class="unit">公斤</span>
+                </div>
+            </div>
+            <button type="submit">計算 BMI</button>
+            <p id="error" class="error" role="alert" hidden></p>
+        </form>
+
+        <section id="result" class="result" aria-live="polite" hidden>
+            <p class="result-label">你的 BMI</p>
+            <p id="bmi-value" class="bmi-value"></p>
+            <p id="category" class="category"></p>
+        </section>
+
+        <p class="note">成人 BMI 分類參考：低於 18.5 為過輕，18.5–24 為正常，24–27 為過重，27 以上為肥胖。BMI 僅供健康參考，不能取代專業醫療診斷。</p>
+    </main>
+
+
+    <script>
+        const form = document.getElementById("bmi-form");
+        const heightInput = document.getElementById("height");
+        const weightInput = document.getElementById("weight");
+        const result = document.getElementById("result");
+        const bmiValue = document.getElementById("bmi-value");
+        const category = document.getElementById("category");
+        const error = document.getElementById("error");
+
+        form.addEventListener("submit", function (event) {
+            event.preventDefault();
+            const heightCm = Number(heightInput.value);
+            const weightKg = Number(weightInput.value);
+
+            if (!heightInput.value || !weightInput.value || heightCm <= 0 || weightKg <= 0) {
+                result.hidden = true;
+                error.textContent = "請輸入大於 0 的身高與體重。";
+                error.hidden = false;
+                return;
+            }
+
+            const heightM = heightCm / 100;
+            const bmi = weightKg / (heightM * heightM);
+            let message;
+            if (bmi < 18.5) {
+                message = "過輕";
+            } else if (bmi < 24) {
+                message = "正常範圍";
+            } else if (bmi < 27) {
+                message = "過重";
+            } else {
+                message = "肥胖";
+            }
+
+            bmiValue.textContent = bmi.toFixed(1);
+            category.textContent = message;
+            error.hidden = true;
+            result.hidden = false;
+        });
+    </script>
+</body>
+</html>
+
