@@ -3,7 +3,7 @@ on:
   push:
     branches: [main]
     paths:
-      - '1030/**'
+      - 'DAYFLOW.html'
       - '.github/workflows/pages.yml'
   workflow_dispatch:
 permissions:
@@ -24,10 +24,12 @@ jobs:
         uses: actions/checkout@v4
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
+      - name: Prepare website entry
+        run: cp DAYFLOW.html index.html
       - name: Upload site artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: '1030'
+          path: '.'
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
