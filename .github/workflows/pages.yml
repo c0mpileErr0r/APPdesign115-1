@@ -4,6 +4,7 @@ on:
     branches: [main]
     paths:
       - 'DAYFLOW.html'
+      - 'FIREBASE_SETUP.md'
       - '.github/workflows/pages.yml'
   workflow_dispatch:
 permissions:
