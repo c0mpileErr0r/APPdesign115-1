@@ -35,7 +35,8 @@ import {initializeApp} from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-
 import {getAuth,GoogleAuthProvider,signInWithPopup,signInWithRedirect,getRedirectResult,onAuthStateChanged,signOut} from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js';
 import {getFirestore,doc,getDoc,setDoc} from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js';
 // Replace placeholders using Firebase Console > Project settings > Your apps.
-const firebaseConfig={apiKey:"AIzaSyCBd_tmW92txztiEGNO7I-6oHOFc-sFsVo",authDomain:"dayflow-b912f.firebaseapp.com",projectId:"dayflow-b912f",appId:"1:909371603977:web:884685e16d2099e71d4cd8"};const firebaseConfigured=!Object.values(firebaseConfig).some(v=>v.includes("YOUR_FIREBASE"));
+const firebaseConfig=__FIREBASE_CONFIG_JSON__;
+const firebaseConfigured=Boolean(firebaseConfig?.apiKey&&firebaseConfig?.authDomain&&firebaseConfig?.projectId&&firebaseConfig?.appId);
 
 (()=>{
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)],todayISO=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
