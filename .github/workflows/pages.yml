@@ -3,8 +3,7 @@ on:
   push:
     branches: [main]
     paths:
-      - 'DAYFLOW.html'
-      - 'FIREBASE_SETUP.md'
+      - 'index.html'
       - '.github/workflows/pages.yml'
   workflow_dispatch:
 permissions:
@@ -25,8 +24,30 @@ jobs:
         uses: actions/checkout@v4
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
-      - name: Prepare website entry
-        run: cp DAYFLOW.html index.html
+      - name: Inject Firebase config into index.html
+        env:
+          FIREBASE_CONFIG_JSON: ${{ secrets.FIREBASE_CONFIG_JSON }}
+        run: |
+          node <<'NODE'
+          const fs = require('node:fs');
+          const rawConfig = process.env.FIREBASE_CONFIG_JSON || '';
+          if (!rawConfig.trim()) {
+            throw new Error('FIREBASE_CONFIG_JSON secret is empty or unavailable');
+          }
+          const config = JSON.parse(rawConfig);
+          const required = ['apiKey', 'authDomain', 'projectId', 'appId'];
+          for (const key of required) {
+            if (typeof config[key] !== 'string' || !config[key].trim()) {
+              throw new Error(`FIREBASE_CONFIG_JSON is missing required key: ${key}`);
+            }
+          }
+          const html = fs.readFileSync('index.html', 'utf8');
+          const placeholder = '__FIREBASE_CONFIG_JSON__';
+          if (!html.includes(placeholder)) {
+            throw new Error(`Placeholder ${placeholder} was not found in index.html`);
+          }
+          fs.writeFileSync('index.html', html.replace(placeholder, JSON.stringify(config)));
+          NODE
       - name: Upload site artifact
         uses: actions/upload-pages-artifact@v3
         with:
