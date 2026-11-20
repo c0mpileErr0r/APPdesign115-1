@@ -34,11 +34,25 @@ jobs:
           if (!rawConfig.trim()) {
             throw new Error('FIREBASE_CONFIG_JSON secret is empty or unavailable');
           }
-          const config = JSON.parse(rawConfig);
           const required = ['apiKey', 'authDomain', 'projectId', 'appId'];
+          let config;
+          try {
+            config = JSON.parse(rawConfig);
+            if (typeof config === 'string') config = JSON.parse(config);
+          } catch {
+            config = {};
+          }
+          if (!config || typeof config !== 'object' || Array.isArray(config)) {
+            config = {};
+          }
           for (const key of required) {
             if (typeof config[key] !== 'string' || !config[key].trim()) {
-              throw new Error(`FIREBASE_CONFIG_JSON is missing required key: ${key}`);
+              const pattern = new RegExp(key + "\\s*:\\s*[\"']([^\"']+)[\"']");
+              const match = rawConfig.match(pattern);
+              if (match) config[key] = match[1].trim();
+            }
+            if (typeof config[key] !== 'string' || !config[key].trim()) {
+              throw new Error(`FIREBASE_CONFIG_JSON is missing a valid ${key} value`);
             }
           }
           const html = fs.readFileSync('index.html', 'utf8');
