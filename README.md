@@ -1,16 +1,17 @@
 # 日序 DAYFLOW
 
-日序是個人行程與待辦管理 Web 原型，提供今日總覽、行程月曆和任務時間線。介面以繁體中文呈現，使用原生 HTML、CSS、JavaScript，並以 Firebase Authentication 和 Cloud Firestore 提供登入與雲端資料保存。
+日序是個人行程與待辦管理 Web 原型，提供今日總覽、行程月曆和待辦任務清單。介面以繁體中文呈現，使用原生 HTML、CSS、JavaScript，並以 Firebase Authentication 和 Cloud Firestore 提供登入與雲端資料保存。
 
 ## 功能
 
 - 使用 Google 帳戶登入與登出；每個帳戶的行程及任務分開保存。
 - 在今日總覽查看當日行程、未完成待辦、數量摘要與提醒摘要。
-- 以月曆查看各日行程數及未完成任務數，並切換月份、選取日期。
-- 在任務時間線查看所選日期 24 小時內的行程與未完成任務；任務依截止時間定位，並標示逾期狀態。
+- 以月曆日期格顯示行程標題並切換月份；選取日期後在月曆下方查看當日日程，待辦不顯示在行程月曆。
+- 在待辦任務清單逐筆查看所有日期的任務，可選擇依日期或優先度排序；次排序使用另一項條件，並標示逾期狀態。
 - 新增、編輯、刪除行程或任務，並直接勾選任務完成狀態。
 - 行程支援日期、起訖時間、地點、備註與提醒；任務支援截止日期／時間、提醒、優先順序及完成狀態。
 - 同一瀏覽器另保存每位使用者的本機資料副本；雲端寫入失敗時會顯示提示。
+- 「日序小助手」使用 Firebase AI Logic 與 Gemini 3.8 Flash，根據所選日期行程和待辦提供繁體中文規劃建議，支援多輪追問。
 - 支援桌面與行動版版面。
 
 提醒目前只顯示在今日總覽，不會排程或送出瀏覽器／手機通知。
@@ -33,8 +34,12 @@ python -m http.server 8000
 2. 建立 Cloud Firestore，並設定安全規則，限制使用者只能讀寫自己的 `users/{uid}/planner/main` 文件。
 3. 將 Web app 的 `apiKey`、`authDomain`、`projectId` 和 `appId` 更新至 `index.html` 的 `firebaseConfig`。
 4. 若部署到網頁，將部署網域加入 Firebase Authentication 的授權網域。
+5. 在 Firebase 專案目錄執行 `npx -y firebase-tools@latest init ailogic`，啟用 Firebase AI Logic / Gemini Developer API。
+6. 在 Firebase Console 的「App Check」為 Web app 註冊 reCAPTCHA Enterprise，將取得的 site key 填入 `index.html` 的 `appCheckSiteKey`。本機 `localhost` 會自動使用 App Check debug provider；第一次使用時，請將瀏覽器 console 印出的 debug token 加到 Firebase Console > App Check > Apps > Manage debug tokens。請勿公開 debug token，也不要在正式部署使用 debug provider。
 
 登入成功後，應用程式先讀取 `users/{uid}/planner/main`；沒有有效雲端資料時會使用該帳戶的本機副本，若兩者皆無則以空白行程及任務開始。每次變更會先寫入本機，再排入 Firestore 寫入。Firestore 權限或連線錯誤不會提供即時雲端同步保證。
+
+Gemini 對話只會附帶所選日期的行程、地點、備註及任務，不會傳送其他日期的資料。正式部署前需完成 reCAPTCHA Enterprise App Check 設定。網頁中的 site key 是公開識別值，不可把 Gemini API key 或 App Check debug token 放進前端。
 
 ## 資料格式
 
